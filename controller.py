@@ -63,7 +63,7 @@ def getRankingWithTitle(allPosts, query):
     N = len(corpus)
     ByTitleN = len(titleCorpus)
     cnto = 1
-    for i in titleCorpus:
+    for i in corpus:
         print(i, cnto)
         cnto= cnto+1
     sw = current_app.stopwords
@@ -73,7 +73,7 @@ def getRankingWithTitle(allPosts, query):
     for i in range(len(titleCorpus)):
         titleCorpus[i] = [term for term in titleCorpus[i]]
     cnto = 1
-    for i in titleCorpus:
+    for i in corpus:
         print(i, cnto)
         cnto= cnto+1
     unique_terms = set()
@@ -129,22 +129,37 @@ def getRankingWithTitle(allPosts, query):
     processedQueryForTitle = [query_processing(query, unique_title_terms)]
     qvector = pd.DataFrame(processedQuery)
     titleqvector = pd.DataFrame(processedQueryForTitle)
+    rows_with_all_zeroes = (titleqvector == 0).all(axis=1)
+    print("QVECTOERS WITH ZEROWSSSS")
+    print(len(titleqvector[rows_with_all_zeroes]))
+    caution = len(titleqvector[rows_with_all_zeroes])
     print("uifhijsadbvjewqhfasdbvjieqrbfgjqwebnijq3rfkqsdnfug",titleqvector)
     print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++===================================================++++++++++++++++++++++++++++++++++++", qvector)
     qvector = qvector.div(qvector.sum(axis=1), axis=0)
     qvector = qvector.mul(idf, axis=1)
     print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++===================================================++++++++++++++++++++++++++++++++++++", titleqvector)
-    titleqvector = titleqvector.div(titleqvector.sum(axis=1), axis=0)
-    titleqvector = titleqvector.mul(title_idf, axis=1)
+    if caution == 0:
+        print("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}")
+        titleqvector = titleqvector.div(titleqvector.sum(axis=1), axis=0)
+        
+        titleqvector = titleqvector.mul(title_idf, axis=1)
+   
     lst = []
     title_lst = []
     for q in range(len(qvector)):
         for i in range(len(tdm)):
             lst.append(find_cosine_sim(tdm.iloc[i], qvector.iloc[q]))
-    for q in range(len(titleqvector)):
-        for i in range(len(title_tdm)):
-            title_lst.append(find_cosine_sim(title_tdm.iloc[i], titleqvector.iloc[q]))
-    
+    if caution == 0:
+        for q in range(len(titleqvector)):
+            for i in range(len(title_tdm)):
+                title_lst.append(find_cosine_sim(title_tdm.iloc[i], titleqvector.iloc[q]))
+    else:
+        for q in range(len(titleqvector)):
+            for i in range(len(title_tdm)):
+                title_lst.append(0)
+
+
+        
     # similarity_df = pd.DataFrame(lst, columns=['post_id', 'similarity'])
     # print(similarity_df)
     # similarity_df = similarity_df.sort_values(by='similarity', ascending=False)
